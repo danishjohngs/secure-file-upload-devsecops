@@ -1,0 +1,39 @@
+name: DevSecOps Pipeline
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  security-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          pip install bandit
+          pip install -r requirements.txt
+
+      - name: Run Bandit Security Scan
+        run: |
+          bandit -r . -ll
+
+      - name: Build Docker Image
+        run: |
+          docker build -t secure-upload-app .
+
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: secure-upload-app
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
