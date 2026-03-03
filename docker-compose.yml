@@ -1,0 +1,17 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - clamav
+    volumes:
+      - uploads_data:/app/uploads
+
+  clamav:
+    image: clamav/clamav:latest
+    volumes:
+      - uploads_data:/app/uploads
+
+volumes:
+  uploads_data:
